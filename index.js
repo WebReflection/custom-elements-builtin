@@ -75,7 +75,6 @@
   const {define, get} = customElements;
   const {createElement} = document;
 
-  const attributes = new WeakMap;
   const shadowRoots = new WeakMap;
 
   const classes = new Map;
@@ -88,30 +87,26 @@
   const shadowed = [];
   const query = [];
 
-  const attributeChanged = (records, o) => {
-    for (let h = attributes.get(o), i = 0, {length} = records; i < length; i++) {
+  const attributeChanged = records => {
+    for (let i = 0, {length} = records; i < length; i++) {
       const {target, attributeName, oldValue} = records[i];
       const newValue = target.getAttribute(attributeName);
-      h.call(target, attributeName, oldValue, newValue);
+      target.attributeChangedCallback(attributeName, oldValue, newValue);
     }
   };
 
   const augment = (element, is) => {
     const {observedAttributes: attributeFilter} = element.constructor;
     if (attributeFilter) {
-      const {attributeChangedCallback} = element;
-      const o = new MutationObserver(attributeChanged);
-      o.observe(element, {
+      new MutationObserver(attributeChanged).observe(element, {
         attributes: true,
         attributeOldValue: true,
         attributeFilter
       });
-      attributes.set(o, attributeChangedCallback);
       whenDefined(is).then(() => {
         attributeFilter.forEach(attributeName => {
           if (element.hasAttribute(attributeName))
-            attributeChangedCallback.call(
-              element,
+            element.attributeChangedCallback(
               attributeName,
               null,
               element.getAttribute(attributeName)

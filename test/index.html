@@ -66,6 +66,7 @@
       {extends: 'button'}
     );
     setTimeout(() => {
+      document.querySelector('button[is="shadow-button"]').setAttribute('test', Math.random());
       document.body.append(shadowed, document.createElement('shadow-ed'));
       setTimeout(() => {
         document.body.textContent = '';
