@@ -176,8 +176,8 @@
   defineProperty(Element.prototype, 'attachShadow', {
     value() {
       const root = attachShadow.apply(this, arguments);
-      qsaObserver({query, root, handle});
-      shadowRoots.set(this, root);
+      const {parse} = qsaObserver({query, root, handle});
+      shadowRoots.set(this, {root, parse});
       return root;
     }
   });
@@ -225,7 +225,8 @@
   });
 
   function parseShadow(element) {
-    parse(shadowRoots.get(element).querySelectorAll(this), element.isConnected);
+    const {parse, root} = shadowRoots.get(element);
+    parse(root.querySelectorAll(this), element.isConnected);
   }
 
 }());
