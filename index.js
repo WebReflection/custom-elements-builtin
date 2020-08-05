@@ -126,7 +126,7 @@
     }
     const method = `${connected ? '' : 'dis'}connectedCallback`;
     if (method in proto)
-      proto[method].call(element);
+      element[method]();
   };
 
   const {parse} = qsaObserver({query, handle});
