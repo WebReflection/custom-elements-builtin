@@ -33,5 +33,13 @@
   "unpkg": "es.js",
   "dependencies": {
     "qsa-observer": "^1.1.2"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WebReflection/custom-elements-builtin.git"
+  },
+  "bugs": {
+    "url": "https://github.com/WebReflection/custom-elements-builtin/issues"
+  },
+  "homepage": "https://github.com/WebReflection/custom-elements-builtin#readme"
 }
