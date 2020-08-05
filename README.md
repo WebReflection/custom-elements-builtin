@@ -37,6 +37,12 @@ else
 
 <sup>**P.S.** the `\x2f` is not a typo, it's exactly how you should write it or your page layout will break!</sup>
 
+- - -
+
+There is also a **[live test page](https://webreflection.github.io/custom-elements-builtin/test/)** which should show few buttons and then cleanup.
+
+All logs in console are there to understand if all elements reacted as expected, either within Shadow DOM nodes, or outside.
+
 
 ## To Keep In Mind
 
