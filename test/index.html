@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>custom-elements-builtin</title>
+  <script>
+  try {
+    class $ extends HTMLLIElement {}
+    customElements.define('custom-elements-builtin', $, {extends: 'li'});
+    new $;
+  }
+  catch (o_O) {
+    console.log('Safari 🎉');
+    document.write('<script src="../es.js"><\x2fscript>');
+  }
+  </script>
+  <script>
+  customElements.define('shadow-ed', class extends HTMLElement {
+    constructor() {
+      super();
+      const snarky = this.attachShadow({mode: 'closed'});
+      snarky.innerHTML = `
+        <button is="shadow-button" test="shadowed">not really</button>
+        <button is="lazy-button">not really</button>
+      `;
+    }
+  });
+  customElements.define(
+    'shadow-button',
+    class extends HTMLButtonElement {
+      static get observedAttributes() { return ['test']; }
+      constructor() {
+        super().textContent = 'OK';
+        console.log('shadow-button', 'constructed');
+      }
+      attributeChangedCallback(name, oldValue, newValue) {
+        console.log('shadow-button', name, oldValue, newValue);
+      }
+    },
+    {extends: 'button'}
+  );
+  this.onload = () => {
+    document.body.appendChild(
+      document.createElement('button', {is: 'shadow-button'})
+    );
+    customElements.define(
+      'lazy-button',
+      class extends HTMLButtonElement {
+        constructor() {
+          super().textContent = 'OK';
+        }
+      },
+      {extends: 'button'}
+    );
+  };
+  </script>
+</head>
+<body>
+  <button is="shadow-button"></button>
+  <shadow-ed></shadow-ed>
+</body>
+</html>
