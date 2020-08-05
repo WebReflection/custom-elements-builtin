@@ -29,12 +29,12 @@ const attributeChanged = records => {
 const augment = (element, is) => {
   const {observedAttributes: attributeFilter} = element.constructor;
   if (attributeFilter) {
-    new MutationObserver(attributeChanged).observe(element, {
-      attributes: true,
-      attributeOldValue: true,
-      attributeFilter
-    });
     whenDefined(is).then(() => {
+      new MutationObserver(attributeChanged).observe(element, {
+        attributes: true,
+        attributeOldValue: true,
+        attributeFilter
+      });
       attributeFilter.forEach(attributeName => {
         if (element.hasAttribute(attributeName))
           element.attributeChangedCallback(
@@ -65,11 +65,13 @@ const {parse} = qsaObserver({query, handle});
 const {parse: parseShadowed} = qsaObserver({
   query: shadowed,
   handle(element, connected) {
-    if (connected)
-      shadows.add(element);
-    else
-      shadows.delete(element);
-    parseShadow.call(query, element);
+    if (shadowRoots.has(element)) {
+      if (connected)
+        shadows.add(element);
+      else
+        shadows.delete(element);
+      parseShadow.call(query, element);
+    }
   }
 });
 

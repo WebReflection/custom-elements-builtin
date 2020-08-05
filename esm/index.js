@@ -64,11 +64,13 @@ const {parse} = qsaObserver({query, handle});
 const {parse: parseShadowed} = qsaObserver({
   query: shadowed,
   handle(element, connected) {
-    if (connected)
-      shadows.add(element);
-    else
-      shadows.delete(element);
-    parseShadow.call(query, element);
+    if (shadowRoots.has(element)) {
+      if (connected)
+        shadows.add(element);
+      else
+        shadows.delete(element);
+      parseShadow.call(query, element);
+    }
   }
 });
 
