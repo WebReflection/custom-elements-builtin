@@ -25,6 +25,9 @@
         <button is="lazy-button">not really</button>
       `;
     }
+    disconnectedCallback() {
+      console.log('shadow-ed', 'disconnected');
+    }
   });
   customElements.define(
     'shadow-button',
@@ -37,10 +40,14 @@
       attributeChangedCallback(name, oldValue, newValue) {
         console.log('shadow-button', name, oldValue, newValue);
       }
+      disconnectedCallback() {
+        console.log('shadow-button', 'disconnected');
+      }
     },
     {extends: 'button'}
   );
   this.onload = () => {
+    const shadowed = document.createElement('shadow-ed');
     document.body.appendChild(
       document.createElement('button', {is: 'shadow-button'})
     );
@@ -50,9 +57,18 @@
         constructor() {
           super().textContent = 'OK';
         }
+        disconnectedCallback() {
+          console.log('lazy-button', 'disconnected');
+        }
       },
       {extends: 'button'}
     );
+    setTimeout(() => {
+      document.body.append(shadowed, document.createElement('shadow-ed'));
+      setTimeout(() => {
+        document.body.textContent = '';
+      }, 100);
+    }, 100);
   };
   </script>
 </head>

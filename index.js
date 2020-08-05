@@ -139,12 +139,11 @@
   const {parse: parseShadowed} = qsaObserver({
     query: shadowed,
     handle(element, connected) {
-      if (connected) {
+      if (connected)
         shadows.add(element);
-        parseShadow.call(query, element);
-      }
       else
         shadows.delete(element);
+      parseShadow.call(query, element);
     }
   });
 
@@ -229,7 +228,7 @@
   });
 
   function parseShadow(element) {
-    parse(shadowRoots.get(element).querySelectorAll(this));
+    parse(shadowRoots.get(element).querySelectorAll(this), element.isConnected);
   }
 
 }());
