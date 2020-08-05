@@ -7,12 +7,16 @@ const {define, get} = customElements;
 const {createElement} = document;
 
 const attributes = new WeakMap;
+const shadowRoots = new WeakMap;
+
 const classes = new Map;
 const defined = new Map;
 const prototypes = new Map;
 const registry = new Map;
 
-const shadows = [];
+const shadows = new Set;
+
+const shadowed = [];
 const query = [];
 
 const attributeChanged = (records, o) => {
@@ -63,6 +67,18 @@ const handle = (element, connected, selector) => {
 
 const {parse} = qsaObserver({query, handle});
 
+const {parse: parseShadowed} = qsaObserver({
+  query: shadowed,
+  handle(element, connected) {
+    if (connected) {
+      shadows.add(element);
+      parseShadow.call(query, element);
+    }
+    else
+      shadows.delete(element);
+  }
+});
+
 const whenDefined = name => {
   if (!defined.has(name)) {
     let _, $ = new Promise($ => { _ = $; });
@@ -96,28 +112,36 @@ defineProperty(Element.prototype, 'attachShadow', {
   value() {
     const root = attachShadow.apply(this, arguments);
     qsaObserver({query, root, handle});
-    shadows.push(root);
+    shadowRoots.set(this, root);
     return root;
   }
 });
 
 defineProperty(customElements, 'define', {
   value(is, Class, options) {
+    let selector;
     const tag = options && options.extends;
     if (tag) {
       if (registry.has(is))
         throw new Error(`the name "${is}" has already been used with this registry`);
-      const selector = `${tag}[is="${is}"]`;
+      selector = `${tag}[is="${is}"]`;
       classes.set(Class, {is, tag});
       prototypes.set(selector, Class.prototype);
       registry.set(is, Class);
       query.push(selector);
-      parse(document.querySelectorAll(query));
-      shadows.forEach(root => { parse(root.querySelectorAll(query)); });
     }
-    else
+    else {
       define.apply(customElements, arguments);
-    whenDefined(is);
+      shadowed.push(selector = is);
+    }
+    whenDefined(is).then(() => {
+      if (tag) {
+        parse(document.querySelectorAll(selector));
+        shadows.forEach(parseShadow, [selector]);
+      }
+      else
+        parseShadowed(document.querySelectorAll(selector));
+    });
     defined.get(is)._();
   }
 });
@@ -134,3 +158,7 @@ defineProperty(document, 'createElement', {
     return is ? new (registry.get(is)) : createElement.call(document, name);
   }
 });
+
+function parseShadow(element) {
+  parse(shadowRoots.get(element).querySelectorAll(this));
+}
