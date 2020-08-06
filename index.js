@@ -71,7 +71,7 @@
   };
 
   const {attachShadow} = Element.prototype;
-  const {defineProperty, setPrototypeOf} = Object;
+  const {defineProperty, getOwnPropertyNames, setPrototypeOf} = Object;
   const {define, get} = customElements;
   const {createElement} = document;
 
@@ -154,8 +154,8 @@
 
   let override = null;
 
-  Reflect.ownKeys(self)
-    .filter(k => typeof k == 'string' && /^HTML(?!Element)/.test(k))
+  getOwnPropertyNames(self)
+    .filter(k => /^HTML(?!Element)/.test(k))
     .forEach(k => {
       function HTMLBuiltIn() {
         const {constructor} = this;
