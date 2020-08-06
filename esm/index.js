@@ -47,6 +47,8 @@ const augment = (element, is) => {
   return element;
 };
 
+const getCE = name => registry.get(name) || get.call(customElements, name);
+
 const handle = (element, connected, selector) => {
   const proto = prototypes.get(selector);
   if (connected && !proto.isPrototypeOf(element)) {
@@ -117,7 +119,7 @@ defineProperty(customElements, 'define', {
     let selector;
     const tag = options && options.extends;
     if (tag) {
-      if (registry.has(is))
+      if (getCE(is))
         throw new Error(`the name "${is}" has already been used with this registry`);
       selector = `${tag}[is="${is}"]`;
       classes.set(Class, {is, tag});
@@ -141,9 +143,7 @@ defineProperty(customElements, 'define', {
   }
 });
 
-defineProperty(customElements, 'get', {
-  value: name => registry.get(name) || get.call(customElements, name)
-});
+defineProperty(customElements, 'get', {value: getCE});
 
 defineProperty(customElements, 'whenDefined', {value: whenDefined});
 
