@@ -1,6 +1,40 @@
 (function () {
   'use strict';
 
+  var attributesObserver = (whenDefined, MutationObserver) => {
+
+    const attributeChanged = records => {
+      for (let i = 0, {length} = records; i < length; i++)
+        dispatch(records[i]);
+    };
+
+    const dispatch = ({target, attributeName, oldValue}) => {
+      target.attributeChangedCallback(
+        attributeName,
+        oldValue,
+        target.getAttribute(attributeName)
+      );
+    };
+
+    return (target, is) => {
+      const {observedAttributes: attributeFilter} = target.constructor;
+      if (attributeFilter) {
+        whenDefined(is).then(() => {
+          new MutationObserver(attributeChanged).observe(target, {
+            attributes: true,
+            attributeOldValue: true,
+            attributeFilter
+          });
+          for (let i = 0, {length} = attributeFilter; i < length; i++) {
+            if (target.hasAttribute(attributeFilter[i]))
+              dispatch({target, attributeName: attributeFilter[i], oldValue: null});
+          }
+        });
+      }
+      return target;
+    };
+  };
+
   const elements = element => 'querySelectorAll' in element;
   const {filter} = [];
 
@@ -70,52 +104,27 @@
     return {drop, flush, observer, parse};
   };
 
-  const {attachShadow} = Element.prototype;
-  const {defineProperty, getOwnPropertyNames, setPrototypeOf} = Object;
-  const {define, get} = customElements;
-  const {createElement} = document;
+  const {
+    customElements, document: document$1,
+    Element, MutationObserver: MutationObserver$1, Object, Promise,
+    Map, Set: Set$1, WeakMap: WeakMap$1
+  } = self;
 
-  const shadowRoots = new WeakMap;
+  const {attachShadow} = Element.prototype;
+  const {createElement} = document$1;
+  const {define, get} = customElements;
+  const {defineProperty, getOwnPropertyNames, setPrototypeOf} = Object;
+
+  const shadowRoots = new WeakMap$1;
+  const shadows = new Set$1;
 
   const classes = new Map;
   const defined = new Map;
   const prototypes = new Map;
   const registry = new Map;
 
-  const shadows = new Set;
-
   const shadowed = [];
   const query = [];
-
-  const attributeChanged = records => {
-    for (let i = 0, {length} = records; i < length; i++) {
-      const {target, attributeName, oldValue} = records[i];
-      const newValue = target.getAttribute(attributeName);
-      target.attributeChangedCallback(attributeName, oldValue, newValue);
-    }
-  };
-
-  const augment = (element, is) => {
-    const {observedAttributes: attributeFilter} = element.constructor;
-    if (attributeFilter) {
-      whenDefined(is).then(() => {
-        new MutationObserver(attributeChanged).observe(element, {
-          attributes: true,
-          attributeOldValue: true,
-          attributeFilter
-        });
-        attributeFilter.forEach(attributeName => {
-          if (element.hasAttribute(attributeName))
-            element.attributeChangedCallback(
-              attributeName,
-              null,
-              element.getAttribute(attributeName)
-            );
-        });
-      });
-    }
-    return element;
-  };
 
   const getCE = name => registry.get(name) || get.call(customElements, name);
 
@@ -154,6 +163,8 @@
     return defined.get(name).$;
   };
 
+  const augment = attributesObserver(whenDefined, MutationObserver$1);
+
   let override = null;
 
   getOwnPropertyNames(self)
@@ -166,7 +177,7 @@
         const {is, tag} = classes.get(constructor);
         if (override)
           return augment(override, is);
-        const element = createElement.call(document, tag);
+        const element = createElement.call(document$1, tag);
         element.setAttribute('is', is);
         return augment(setPrototypeOf(element, constructor.prototype), is);
       }
@@ -203,11 +214,11 @@
       }
       whenDefined(is).then(() => {
         if (tag) {
-          parse(document.querySelectorAll(selector));
+          parse(document$1.querySelectorAll(selector));
           shadows.forEach(parseShadow, [selector]);
         }
         else
-          parseShadowed(document.querySelectorAll(selector));
+          parseShadowed(document$1.querySelectorAll(selector));
       });
       defined.get(is)._();
     }
@@ -217,10 +228,10 @@
 
   defineProperty(customElements, 'whenDefined', {value: whenDefined});
 
-  defineProperty(document, 'createElement', {
+  defineProperty(document$1, 'createElement', {
     value(name, options) {
       const is = options && options.is;
-      return is ? new (registry.get(is)) : createElement.call(document, name);
+      return is ? new (registry.get(is)) : createElement.call(document$1, name);
     }
   });
 

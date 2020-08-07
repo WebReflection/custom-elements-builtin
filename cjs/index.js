@@ -1,52 +1,28 @@
 'use strict';
+const attributesObserver = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@webreflection/custom-elements-attributes'));
 const qsaObserver = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('qsa-observer'));
 
+const {
+  customElements, document,
+  Element, MutationObserver, Object, Promise,
+  Map, Set, WeakMap
+} = self;
+
 const {attachShadow} = Element.prototype;
-const {defineProperty, getOwnPropertyNames, setPrototypeOf} = Object;
-const {define, get} = customElements;
 const {createElement} = document;
+const {define, get} = customElements;
+const {defineProperty, getOwnPropertyNames, setPrototypeOf} = Object;
 
 const shadowRoots = new WeakMap;
+const shadows = new Set;
 
 const classes = new Map;
 const defined = new Map;
 const prototypes = new Map;
 const registry = new Map;
 
-const shadows = new Set;
-
 const shadowed = [];
 const query = [];
-
-const attributeChanged = records => {
-  for (let i = 0, {length} = records; i < length; i++) {
-    const {target, attributeName, oldValue} = records[i];
-    const newValue = target.getAttribute(attributeName);
-    target.attributeChangedCallback(attributeName, oldValue, newValue);
-  }
-};
-
-const augment = (element, is) => {
-  const {observedAttributes: attributeFilter} = element.constructor;
-  if (attributeFilter) {
-    whenDefined(is).then(() => {
-      new MutationObserver(attributeChanged).observe(element, {
-        attributes: true,
-        attributeOldValue: true,
-        attributeFilter
-      });
-      attributeFilter.forEach(attributeName => {
-        if (element.hasAttribute(attributeName))
-          element.attributeChangedCallback(
-            attributeName,
-            null,
-            element.getAttribute(attributeName)
-          );
-      });
-    });
-  }
-  return element;
-};
 
 const getCE = name => registry.get(name) || get.call(customElements, name);
 
@@ -84,6 +60,8 @@ const whenDefined = name => {
   }
   return defined.get(name).$;
 };
+
+const augment = attributesObserver(whenDefined, MutationObserver);
 
 let override = null;
 
