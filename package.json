@@ -33,7 +33,7 @@
   "unpkg": "es.js",
   "dependencies": {
     "@webreflection/custom-elements-attributes": "^0.1.3",
-    "qsa-observer": "^1.1.2"
+    "qsa-observer": "^1.1.5"
   },
   "repository": {
     "type": "git",
