@@ -92,7 +92,18 @@ defineProperty(Element.prototype, 'attachShadow', {
   }
 });
 
+defineProperty(customElements, 'get', {
+  configurable: true,
+  value: getCE
+});
+
+defineProperty(customElements, 'whenDefined', {
+  configurable: true,
+  value: whenDefined
+});
+
 defineProperty(customElements, 'define', {
+  configurable: true,
   value(is, Class, options) {
     let selector;
     const tag = options && options.extends;
@@ -120,10 +131,6 @@ defineProperty(customElements, 'define', {
     defined.get(is)._(Class);
   }
 });
-
-defineProperty(customElements, 'get', {value: getCE});
-
-defineProperty(customElements, 'whenDefined', {value: whenDefined});
 
 defineProperty(document, 'createElement', {
   value(name, options) {

@@ -197,7 +197,18 @@
     }
   });
 
+  defineProperty(customElements, 'get', {
+    configurable: true,
+    value: getCE
+  });
+
+  defineProperty(customElements, 'whenDefined', {
+    configurable: true,
+    value: whenDefined
+  });
+
   defineProperty(customElements, 'define', {
+    configurable: true,
     value(is, Class, options) {
       let selector;
       const tag = options && options.extends;
@@ -225,10 +236,6 @@
       defined.get(is)._(Class);
     }
   });
-
-  defineProperty(customElements, 'get', {value: getCE});
-
-  defineProperty(customElements, 'whenDefined', {value: whenDefined});
 
   defineProperty(document$1, 'createElement', {
     value(name, options) {
