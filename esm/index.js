@@ -23,7 +23,7 @@ const registry = new Map;
 const shadowed = [];
 const query = [];
 
-const getCE = name => registry.get(name) || get.call(customElements, name);
+const getCE = is => registry.get(is) || get.call(customElements, is);
 
 const handle = (element, connected, selector) => {
   const proto = prototypes.get(selector);
@@ -117,7 +117,7 @@ defineProperty(customElements, 'define', {
       else
         parseShadowed(document.querySelectorAll(selector));
     });
-    defined.get(is)._();
+    defined.get(is)._(Class);
   }
 });
 
