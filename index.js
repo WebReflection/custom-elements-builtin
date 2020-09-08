@@ -188,6 +188,13 @@
       defineProperty(self, k, {value: HTMLBuiltIn});
     });
 
+  defineProperty(document$1, 'createElement', {
+    value(name, options) {
+      const is = options && options.is;
+      return is ? new (registry.get(is)) : createElement.call(document$1, name);
+    }
+  });
+
   defineProperty(Element.prototype, 'attachShadow', {
     value() {
       const root = attachShadow.apply(this, arguments);
@@ -234,13 +241,6 @@
           parseShadowed(document$1.querySelectorAll(selector));
       });
       defined.get(is)._(Class);
-    }
-  });
-
-  defineProperty(document$1, 'createElement', {
-    value(name, options) {
-      const is = options && options.is;
-      return is ? new (registry.get(is)) : createElement.call(document$1, name);
     }
   });
 

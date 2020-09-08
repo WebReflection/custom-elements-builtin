@@ -84,6 +84,13 @@ getOwnPropertyNames(self)
     defineProperty(self, k, {value: HTMLBuiltIn});
   });
 
+defineProperty(document, 'createElement', {
+  value(name, options) {
+    const is = options && options.is;
+    return is ? new (registry.get(is)) : createElement.call(document, name);
+  }
+});
+
 defineProperty(Element.prototype, 'attachShadow', {
   value() {
     const root = attachShadow.apply(this, arguments);
@@ -130,13 +137,6 @@ defineProperty(customElements, 'define', {
         parseShadowed(document.querySelectorAll(selector));
     });
     defined.get(is)._(Class);
-  }
-});
-
-defineProperty(document, 'createElement', {
-  value(name, options) {
-    const is = options && options.is;
-    return is ? new (registry.get(is)) : createElement.call(document, name);
   }
 });
 
