@@ -74,6 +74,23 @@
       }, 1000);
     }, 100);
   };
+  try {
+    const tag = 'div'
+    const div = document.createElement(tag, {is: 'shadow-button'})
+    const ShadowButton = customElements.get('shadow-button')
+    console.assert(tag === div.localName, 'the div was not a div')
+    console.assert(!(div instanceof ShadowButton), 'the div became a built-in')
+  } catch (error) {
+    console.error(error)
+  }
+  try {
+    const tag = 'p'
+    const div = document.createElement(tag, {is: 'not-really-p'})
+    const ShadowButton = customElements.get('not-really-p')
+    console.assert(tag === div.localName, 'the p was a not-really-p')
+  } catch (error) {
+    console.error(error)
+  }
   </script>
 </head>
 <body>
