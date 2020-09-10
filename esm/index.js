@@ -86,7 +86,9 @@ getOwnPropertyNames(self)
 defineProperty(document, 'createElement', {
   value(name, options) {
     const is = options && options.is;
-    return is ? new (registry.get(is)) : createElement.call(document, name);
+    return is && name === Object(classes.get(registry.get(is))).tag
+      ? new (registry.get(is))
+      : createElement.call(document, name);
   }
 });
 
