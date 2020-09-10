@@ -191,7 +191,15 @@
   defineProperty(document$1, 'createElement', {
     value(name, options) {
       const is = options && options.is;
-      return is ? new (registry.get(is)) : createElement.call(document$1, name);
+      if (is) {
+        const Class = registry.get(is);
+        if (Class && classes.get(Class).tag === name)
+          return new Class;
+      }
+      const element = createElement.call(document$1, name);
+      if (is)
+        element.setAttribute('is', is);
+      return element;
     }
   });
 
@@ -221,7 +229,7 @@
       const tag = options && options.extends;
       if (tag) {
         if (getCE(is))
-          throw new Error(`the name "${is}" has already been used with this registry`);
+          throw new Error(`'${is}' has already been defined as a custom element`);
         selector = `${tag}[is="${is}"]`;
         classes.set(Class, {is, tag});
         prototypes.set(selector, Class.prototype);

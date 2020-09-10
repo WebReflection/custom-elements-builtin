@@ -73,6 +73,15 @@
         setTimeout(() => {}, 100);
       }, 1000);
     }, 100);
+    let tag = 'div';
+    let element = document.createElement(tag, {is: 'shadow-button'});
+    let Class = customElements.get('shadow-button');
+    console.assert(tag === element.localName, 'the div should be a div');
+    console.assert(!(element instanceof Class), 'the div should not extend');
+    tag = 'p';
+    element = document.createElement(tag, {is: 'not-really-p'});
+    console.assert(tag === element.localName, 'the p should not be not-really-p');
+    console.assert(element.outerHTML.toLowerCase() === '<p is="not-really-p"></p>', 'the p has not the right attribute');
   };
   </script>
 </head>
