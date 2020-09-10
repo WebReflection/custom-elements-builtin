@@ -191,7 +191,9 @@
   defineProperty(document$1, 'createElement', {
     value(name, options) {
       const is = options && options.is;
-      return is ? new (registry.get(is)) : createElement.call(document$1, name);
+      return is && name === Object(classes.get(registry.get(is))).tag
+        ? new (registry.get(is))
+        : createElement.call(document$1, name);
     }
   });
 
