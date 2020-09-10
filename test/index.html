@@ -78,8 +78,8 @@
     const tag = 'div'
     const div = document.createElement(tag, {is: 'shadow-button'})
     const ShadowButton = customElements.get('shadow-button')
-    console.assert(tag === div.localName, 'the div was not a div')
-    console.assert(!(div instanceof ShadowButton), 'the div became a built-in')
+    console.assert(tag === div.localName, 'the div should be a div')
+    console.assert(!(div instanceof ShadowButton), 'the div should not extend')
   } catch (error) {
     console.error(error)
   }
@@ -87,7 +87,7 @@
     const tag = 'p'
     const div = document.createElement(tag, {is: 'not-really-p'})
     const ShadowButton = customElements.get('not-really-p')
-    console.assert(tag === div.localName, 'the p was a not-really-p')
+    console.assert(tag === div.localName, 'the p should not be not-really-p')
   } catch (error) {
     console.error(error)
   }
