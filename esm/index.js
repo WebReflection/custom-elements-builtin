@@ -9,7 +9,7 @@ const {
 
 const {attachShadow} = Element.prototype;
 const {createElement} = document;
-const {define, get} = customElements;
+const {_, define, get} = customElements;
 const {defineProperty, getOwnPropertyNames, setPrototypeOf} = Object;
 
 const shadowRoots = new WeakMap;
@@ -69,8 +69,11 @@ getOwnPropertyNames(self)
   .forEach(k => {
     function HTMLBuiltIn() {
       const {constructor} = this;
-      if (!classes.has(constructor))
+      if (!classes.has(constructor)) {
+        if (_ && _.classes.has(constructor))
+          return;
         throw new TypeError('Illegal constructor');
+      }
       const {is, tag} = classes.get(constructor);
       if (override)
         return augment(override, is);
