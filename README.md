@@ -6,19 +6,9 @@
 A better custom-elements-builtin polyfill, targeting Safari, but working in every other browser that has native _customElements_.
 
 
-### Warning
+## Update
 
-This module goal is to replace [the current polyfill](https://github.com/ungap/custom-elements-builtin#readme) which has been around for a while but it has its own caveats.
-
-
-## Current Status
-
-The purpose of this module is to bring Custom Elements builtin extends [without constructors caveats](https://github.com/ungap/custom-elements-builtin#constructor-caveat), with better performance, and with better control through the [qsa-observer](https://github.com/WebReflection/qsa-observer#readme) module.
-
-This module is currently under heavy tests, but it seems to work seamlessly OK in both Safari Desktop and Mobile.
-
-**Please help** me out testing this module as much as you can so that I can bump a major version of the `@ungap` polyfill, and finally provide a caveats-free polyfill for this amazing part of the Web specs.
-
+This module is included in [@ungap/custom-elements](https://github.com/ungap/custom-elements#readme) polyfill, use that to avoid dealing with `try` catches manually, it features detect everything for you.
 
 
 ## How To Test
