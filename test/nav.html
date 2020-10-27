@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="../index.js"></script>>
+  <script>
+  customElements.define('my-button', class extends HTMLButtonElement {
+    connectedCallback () {
+      this.innerHTML = 'CONNECTED';
+    }
+  }, {extends: 'button'});
+
+  customElements.define('my-nav', class extends HTMLElement {
+    connectedCallback () {
+      this.innerHTML = 'CONNECTED';
+    }
+  }, {extends: 'nav'});
+  </script>
+</head>
+<body>
+  <button is="my-button">WAITING</button>
+  <nav is="my-nav">WAITING</nav>
+</body>
+</html>
