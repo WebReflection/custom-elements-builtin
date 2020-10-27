@@ -132,18 +132,17 @@ defineProperty(customElements, 'define', {
   value(is, Class, options) {
     let selector;
     const tag = options && options.extends;
+    if (getCE(is))
+      throw new Error(`'${is}' has already been defined as a custom element`);
+    classes.set(Class, tag ? {is, tag} : {is: '', tag: is});
     if (tag) {
-      if (getCE(is))
-        throw new Error(`'${is}' has already been defined as a custom element`);
       selector = `${tag}[is="${is}"]`;
-      classes.set(Class, {is, tag});
       prototypes.set(selector, Class.prototype);
       registry.set(is, Class);
       query.push(selector);
     }
     else {
       define.apply(customElements, arguments);
-      classes.set(Class, {is: '', tag: is});
       shadowed.push(selector = is);
     }
     whenDefined(is).then(() => {
