@@ -235,10 +235,10 @@
   defineProperty(customElements, 'define', {
     configurable: true,
     value(is, Class, options) {
-      let selector;
-      const tag = options && options.extends;
       if (getCE(is))
         throw new Error(`'${is}' has already been defined as a custom element`);
+      let selector;
+      const tag = options && options.extends;
       classes.set(Class, tag ? {is, tag} : {is: '', tag: is});
       if (tag) {
         selector = `${tag}[is="${is}"]`;
