@@ -171,7 +171,7 @@
   let override = null;
 
   getOwnPropertyNames(self)
-    .filter(k => /^HTML/.test(k))
+    .filter(k => /^HTML(?!Element)/.test(k))
     .forEach(k => {
       function HTMLBuiltIn() {
         const {constructor} = this;
