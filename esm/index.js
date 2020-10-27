@@ -4,12 +4,15 @@ import qsaObserver from 'qsa-observer';
 const {
   customElements, document,
   Element, MutationObserver, Object, Promise,
-  Map, Set, WeakMap
+  Map, Set, WeakMap, Reflect
 } = self;
 
 const {attachShadow} = Element.prototype;
 const {createElement} = document;
-const {_, define, get} = customElements;
+const {define, get} = customElements;
+const {construct} = Reflect || {construct(HTMLElement) {
+  return HTMLElement.call(this);
+}};
 const {defineProperty, getOwnPropertyNames, setPrototypeOf} = Object;
 
 const shadowRoots = new WeakMap;
@@ -65,24 +68,26 @@ const augment = attributesObserver(whenDefined, MutationObserver);
 let override = null;
 
 getOwnPropertyNames(self)
-  .filter(k => /^HTML(?!Element)/.test(k))
+  .filter(k => /^HTML/.test(k))
   .forEach(k => {
+    const HTMLElement = self[k];
     function HTMLBuiltIn() {
       const {constructor} = this;
-      if (!classes.has(constructor)) {
-        if (_ && _.classes.has(constructor))
-          return;
+      if (!classes.has(constructor))
         throw new TypeError('Illegal constructor');
-      }
       const {is, tag} = classes.get(constructor);
-      if (override)
-        return augment(override, is);
-      const element = createElement.call(document, tag);
-      element.setAttribute('is', is);
-      return augment(setPrototypeOf(element, constructor.prototype), is);
+      if (is) {
+        if (override)
+          return augment(override, is);
+        const element = createElement.call(document, tag);
+        element.setAttribute('is', is);
+        return augment(setPrototypeOf(element, constructor.prototype), is);
+      }
+      else
+        return construct.call(this, HTMLElement, [], constructor);
     }
-    setPrototypeOf(HTMLBuiltIn, self[k]);
-    (HTMLBuiltIn.prototype = self[k].prototype).constructor = HTMLBuiltIn;
+    setPrototypeOf(HTMLBuiltIn, HTMLElement);
+    (HTMLBuiltIn.prototype = HTMLElement.prototype).constructor = HTMLBuiltIn;
     defineProperty(self, k, {value: HTMLBuiltIn});
   });
 
@@ -137,6 +142,7 @@ defineProperty(customElements, 'define', {
     }
     else {
       define.apply(customElements, arguments);
+      classes.set(Class, {is: '', tag: is});
       shadowed.push(selector = is);
     }
     whenDefined(is).then(() => {
