@@ -10,28 +10,9 @@ A better custom-elements-builtin polyfill, targeting Safari, but working in ever
 
 This module is included in [@ungap/custom-elements](https://github.com/ungap/custom-elements#readme) polyfill, use that to avoid dealing with `try` catches manually, it features detect everything for you.
 
+**Do not use this module directly** unless you are targeting Safari/WebKit browsers *only*.
 
-## How To Test
-
-Please use [these features detection](https://github.com/ungap/custom-elements-builtin#all-possible-features-detections) to avoid including this polyfill in every browser, considering that this is not transpiled, so it would break in IE11 if included without features detection, but it also adds unnecessary code to parse and execute in every browser that supports Custom Elements builtin natively.
-
-```html
-<script>
-if(this.customElements)
-  try{customElements.define('built-in',document.createElement('p').constructor,{'extends':'p'})}
-  catch(s){document.write('<script src="//unpkg.com/@webreflection/custom-elements-builtin"><\x2fscript>')}
-else
-  document.write('<script src="//unpkg.com/document-register-element"><\x2fscript>');
-</script>
-```
-
-<sup>**P.S.** the `\x2f` is not a typo, it's exactly how you should write it or your page layout will break!</sup>
-
-- - -
-
-There is also a **[live test page](https://webreflection.github.io/custom-elements-builtin/test/)** which should show few buttons and then cleanup.
-
-All logs in console are there to understand if all elements reacted as expected, either within Shadow DOM nodes, or outside.
+I am not maintaining how to feature detect in here, because it keeps changing, and the right polyfill that includes most updated feature detection is [this one](https://github.com/ungap/custom-elements#readme), not this module.
 
 
 ## To Keep In Mind
