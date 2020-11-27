@@ -88,7 +88,11 @@ getOwnPropertyNames(self)
         return construct.call(this, HTMLElement, [], constructor);
     }
     setPrototypeOf(HTMLBuiltIn, HTMLElement);
-    (HTMLBuiltIn.prototype = HTMLElement.prototype).constructor = HTMLBuiltIn;
+    defineProperty(
+      HTMLBuiltIn.prototype = HTMLElement.prototype,
+      'constructor',
+      {value: HTMLBuiltIn}
+    );
     defineProperty(self, k, {value: HTMLBuiltIn});
   });
 
