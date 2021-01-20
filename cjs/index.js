@@ -107,6 +107,7 @@ getOwnPropertyNames(self)
   });
 
 defineProperty(document, 'createElement', {
+  configurable: true,
   value(name, options) {
     const is = options && options.is;
     if (is) {
@@ -123,6 +124,7 @@ defineProperty(document, 'createElement', {
 
 if (attachShadow)
   defineProperty(Element.prototype, 'attachShadow', {
+    configurable: true,
     value() {
       const root = attachShadow.apply(this, arguments);
       const {parse} = qsaObserver({query, root, handle});

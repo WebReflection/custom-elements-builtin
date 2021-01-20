@@ -212,6 +212,7 @@
     });
 
   defineProperty(document$1, 'createElement', {
+    configurable: true,
     value(name, options) {
       const is = options && options.is;
       if (is) {
@@ -228,6 +229,7 @@
 
   if (attachShadow)
     defineProperty(Element.prototype, 'attachShadow', {
+      configurable: true,
       value() {
         const root = attachShadow.apply(this, arguments);
         const {parse} = qsaObserver({query, root, handle});
