@@ -163,7 +163,7 @@ defineProperty(customElements, 'define', {
     whenDefined(is).then(() => {
       if (tag) {
         parse(document.querySelectorAll(selector));
-        shadows.forEach(parseShadow, [selector]);
+        shadows.forEach(parseShadow, selector);
       }
       else
         parseShadowed(document.querySelectorAll(selector));
@@ -174,5 +174,5 @@ defineProperty(customElements, 'define', {
 
 function parseShadow(element) {
   const {parse, root} = shadowRoots.get(element);
-  parse(root.querySelectorAll(this), element.isConnected);
+  parse(root.querySelectorAll('' + this), element.isConnected);
 }
