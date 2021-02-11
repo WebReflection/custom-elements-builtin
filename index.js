@@ -166,7 +166,8 @@
           shadows.add(element);
         else
           shadows.delete(element);
-        parseShadow.call(query, element);
+        if (query.length)
+          parseShadow.call(query, element);
       }
     }
   });
@@ -269,7 +270,7 @@
       whenDefined(is).then(() => {
         if (tag) {
           parse(document$1.querySelectorAll(selector));
-          shadows.forEach(parseShadow, selector);
+          shadows.forEach(parseShadow, [selector]);
         }
         else
           parseShadowed(document$1.querySelectorAll(selector));
@@ -280,7 +281,7 @@
 
   function parseShadow(element) {
     const {parse, root} = shadowRoots.get(element);
-    parse(root.querySelectorAll('' + this), element.isConnected);
+    parse(root.querySelectorAll(this), element.isConnected);
   }
 
 }());
