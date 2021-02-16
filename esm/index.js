@@ -1,4 +1,5 @@
 import attributesObserver from '@webreflection/custom-elements-attributes';
+import {expando} from '@webreflection/custom-elements-upgrade';
 import qsaObserver from 'qsa-observer';
 
 const {
@@ -13,6 +14,7 @@ const {define, get} = customElements;
 const {construct} = Reflect || {construct(HTMLElement) {
   return HTMLElement.call(this);
 }};
+
 const {defineProperty, keys, getOwnPropertyNames, setPrototypeOf} = Object;
 
 const shadowRoots = new WeakMap;
@@ -31,18 +33,12 @@ const getCE = is => registry.get(is) || get.call(customElements, is);
 const handle = (element, connected, selector) => {
   const proto = prototypes.get(selector);
   if (connected && !proto.isPrototypeOf(element)) {
-    const k = keys(element);
-    const v = k.map(key => {
-      const value = element[key];
-      delete element[key];
-      return value;
-    });
+    const redefine = expando(element);
     override = setPrototypeOf(element, proto);
     try { new proto.constructor; }
     finally {
       override = null;
-      for (let i = 0, {length} = k; i < length; i++)
-        element[k[i]] = v[i];
+      redefine();
     }
   }
   const method = `${connected ? '' : 'dis'}connectedCallback`;

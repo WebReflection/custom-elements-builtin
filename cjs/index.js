@@ -1,6 +1,7 @@
 'use strict';
-const attributesObserver = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('@webreflection/custom-elements-attributes'));
-const qsaObserver = (m => m.__esModule ? /* istanbul ignore next */ m.default : /* istanbul ignore next */ m)(require('qsa-observer'));
+const attributesObserver = (m => /* c8 ignore start */ m.__esModule ? m.default : m /* c8 ignore stop */)(require('@webreflection/custom-elements-attributes'));
+const {expando} = require('@webreflection/custom-elements-upgrade');
+const qsaObserver = (m => /* c8 ignore start */ m.__esModule ? m.default : m /* c8 ignore stop */)(require('qsa-observer'));
 
 const {
   customElements, document,
@@ -14,6 +15,7 @@ const {define, get} = customElements;
 const {construct} = Reflect || {construct(HTMLElement) {
   return HTMLElement.call(this);
 }};
+
 const {defineProperty, keys, getOwnPropertyNames, setPrototypeOf} = Object;
 
 const shadowRoots = new WeakMap;
@@ -32,18 +34,12 @@ const getCE = is => registry.get(is) || get.call(customElements, is);
 const handle = (element, connected, selector) => {
   const proto = prototypes.get(selector);
   if (connected && !proto.isPrototypeOf(element)) {
-    const k = keys(element);
-    const v = k.map(key => {
-      const value = element[key];
-      delete element[key];
-      return value;
-    });
+    const redefine = expando(element);
     override = setPrototypeOf(element, proto);
     try { new proto.constructor; }
     finally {
       override = null;
-      for (let i = 0, {length} = k; i < length; i++)
-        element[k[i]] = v[i];
+      redefine();
     }
   }
   const method = `${connected ? '' : 'dis'}connectedCallback`;

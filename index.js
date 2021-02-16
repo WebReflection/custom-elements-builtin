@@ -35,6 +35,22 @@
     };
   };
 
+  const {keys} = Object;
+
+  const expando = element => {
+    const key = keys(element);
+    const value = [];
+    const {length} = key;
+    for (let i = 0; i < length; i++) {
+      value[i] = element[key[i]];
+      delete element[key[i]];
+    }
+    return () => {
+      for (let i = 0; i < length; i++)
+        element[key[i]] = value[i];
+    };
+  };
+
   const {document, MutationObserver, Set, WeakMap} = self;
 
   const elements = element => 'querySelectorAll' in element;
@@ -109,7 +125,7 @@
 
   const {
     customElements, document: document$1,
-    Element, MutationObserver: MutationObserver$1, Object, Promise,
+    Element, MutationObserver: MutationObserver$1, Object: Object$1, Promise,
     Map, Set: Set$1, WeakMap: WeakMap$1, Reflect
   } = self;
 
@@ -119,7 +135,8 @@
   const {construct} = Reflect || {construct(HTMLElement) {
     return HTMLElement.call(this);
   }};
-  const {defineProperty, keys, getOwnPropertyNames, setPrototypeOf} = Object;
+
+  const {defineProperty, keys: keys$1, getOwnPropertyNames, setPrototypeOf} = Object$1;
 
   const shadowRoots = new WeakMap$1;
   const shadows = new Set$1;
@@ -137,18 +154,12 @@
   const handle = (element, connected, selector) => {
     const proto = prototypes.get(selector);
     if (connected && !proto.isPrototypeOf(element)) {
-      const k = keys(element);
-      const v = k.map(key => {
-        const value = element[key];
-        delete element[key];
-        return value;
-      });
+      const redefine = expando(element);
       override = setPrototypeOf(element, proto);
       try { new proto.constructor; }
       finally {
         override = null;
-        for (let i = 0, {length} = k; i < length; i++)
-          element[k[i]] = v[i];
+        redefine();
       }
     }
     const method = `${connected ? '' : 'dis'}connectedCallback`;
