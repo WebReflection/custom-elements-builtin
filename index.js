@@ -51,58 +51,80 @@
     };
   };
 
-  const {document, MutationObserver, Set, WeakMap} = self;
+  const TRUE = true, FALSE = false;
+  const QSA$1 = 'querySelectorAll';
 
-  const elements = element => 'querySelectorAll' in element;
-  const {filter} = [];
+  function add(node) {
+    this.observe(node, {subtree: TRUE, childList: TRUE});
+  }
 
-  var qsaObserver = options => {
-    const live = new WeakMap;
-    const callback = records => {
-      const {query} = options;
-      if (query.length) {
-        for (let i = 0, {length} = records; i < length; i++) {
-          loop(filter.call(records[i].addedNodes, elements), true, query);
-          loop(filter.call(records[i].removedNodes, elements), false, query);
+  /**
+   * Start observing a generic document or root element.
+   * @param {Function} callback triggered per each dis/connected node
+   * @param {Element?} root by default, the global document to observe
+   * @param {Function?} MO by default, the global MutationObserver
+   * @returns {MutationObserver}
+   */
+  const notify = (callback, root, MO) => {
+    const loop = (nodes, added, removed, connected, pass) => {
+      for (let i = 0, {length} = nodes; i < length; i++) {
+        const node = nodes[i];
+        if (pass || (QSA$1 in node)) {
+          if (connected) {
+            if (!added.has(node)) {
+              added.add(node);
+              removed.delete(node);
+              callback(node, connected);
+            }
+          }
+          else if (!removed.has(node)) {
+            removed.add(node);
+            added.delete(node);
+            callback(node, connected);
+          }
+          if (!pass)
+            loop(node[QSA$1]('*'), added, removed, connected, TRUE);
         }
       }
     };
+
+    const observer = new (MO || MutationObserver)(records => {
+      for (let
+        added = new Set,
+        removed = new Set,
+        i = 0, {length} = records;
+        i < length; i++
+      ) {
+        const {addedNodes, removedNodes} = records[i];
+        loop(removedNodes, added, removed, FALSE, FALSE);
+        loop(addedNodes, added, removed, TRUE, FALSE);
+      }
+    });
+
+    observer.add = add;
+    observer.add(root || document);
+
+    return observer;
+  };
+
+  const QSA = 'querySelectorAll';
+
+  const {document: document$2, Element: Element$1, MutationObserver: MutationObserver$2, Set: Set$2, WeakMap: WeakMap$1} = self;
+
+  const elements = element => QSA in element;
+  const {filter} = [];
+
+  var qsaObserver = options => {
+    const live = new WeakMap$1;
     const drop = elements => {
       for (let i = 0, {length} = elements; i < length; i++)
         live.delete(elements[i]);
     };
     const flush = () => {
-      callback(observer.takeRecords());
-    };
-    const loop = (elements, connected, query, set = new Set) => {
-      for (let selectors, element, i = 0, {length} = elements; i < length; i++) {
-        // guard against repeated elements within nested querySelectorAll results
-        if (!set.has(element = elements[i])) {
-          set.add(element);
-          if (connected) {
-            for (let q, m = matches(element), i = 0, {length} = query; i < length; i++) {
-              if (m.call(element, q = query[i])) {
-                if (!live.has(element))
-                  live.set(element, new Set);
-                selectors = live.get(element);
-                // guard against selectors that were handled already
-                if (!selectors.has(q)) {
-                  selectors.add(q);
-                  options.handle(element, connected, q);
-                }
-              }
-            }
-          }
-          // guard against elements that never became live
-          else if (live.has(element)) {
-            selectors = live.get(element);
-            live.delete(element);
-            selectors.forEach(q => {
-              options.handle(element, connected, q);
-            });
-          }
-          loop(querySelectorAll(element), connected, query, set);
-        }
+      const records = observer.takeRecords();
+      for (let i = 0, {length} = records; i < length; i++) {
+        parse(filter.call(records[i].removedNodes, elements), false);
+        parse(filter.call(records[i].addedNodes, elements), true);
       }
     };
     const matches = element => (
@@ -110,23 +132,52 @@
       element.webkitMatchesSelector ||
       element.msMatchesSelector
     );
-    const parse = (elements, connected = true) => {
-      loop(elements, connected, options.query);
+    const notifier = (element, connected) => {
+      let selectors;
+      if (connected) {
+        for (let q, m = matches(element), i = 0, {length} = query; i < length; i++) {
+          if (m.call(element, q = query[i])) {
+            if (!live.has(element))
+              live.set(element, new Set$2);
+            selectors = live.get(element);
+            if (!selectors.has(q)) {
+              selectors.add(q);
+              options.handle(element, connected, q);
+            }
+          }
+        }
+      }
+      else if (live.has(element)) {
+        selectors = live.get(element);
+        live.delete(element);
+        selectors.forEach(q => {
+          options.handle(element, connected, q);
+        });
+      }
     };
-    const querySelectorAll = root => query.length ?
-                              root.querySelectorAll(query) : query;
-    const observer = new MutationObserver(callback);
-    const root = options.root || document;
+    const parse = (elements, connected = true) => {
+      for (let i = 0, {length} = elements; i < length; i++)
+        notifier(elements[i], connected);
+    };
     const {query} = options;
-    observer.observe(root, {childList: true, subtree: true});
-    parse(querySelectorAll(root));
+    const root = options.root || document$2;
+    const observer = notify(notifier, root, MutationObserver$2);
+    const {attachShadow} = Element$1.prototype;
+    if (attachShadow)
+      Element$1.prototype.attachShadow = function (init) {
+        const shadowRoot = attachShadow.call(this, init);
+        observer.add(shadowRoot);
+        return shadowRoot;
+      };
+    if (query.length)
+      parse(root[QSA](query));
     return {drop, flush, observer, parse};
   };
 
   const {
     customElements, document: document$1,
-    Element, MutationObserver: MutationObserver$1, Object: Object$1, Promise,
-    Map, Set: Set$1, WeakMap: WeakMap$1, Reflect
+    Element, MutationObserver: MutationObserver$1, Object: Object$1, Promise: Promise$1,
+    Map, Set: Set$1, WeakMap, Reflect
   } = self;
 
   const {attachShadow} = Element.prototype;
@@ -136,9 +187,9 @@
     return HTMLElement.call(this);
   }};
 
-  const {defineProperty, keys: keys$1, getOwnPropertyNames, setPrototypeOf} = Object$1;
+  const {defineProperty, getOwnPropertyNames, setPrototypeOf} = Object$1;
 
-  const shadowRoots = new WeakMap$1;
+  const shadowRoots = new WeakMap;
   const shadows = new Set$1;
 
   const classes = new Map;
@@ -185,7 +236,7 @@
 
   const whenDefined = name => {
     if (!defined.has(name)) {
-      let _, $ = new Promise($ => { _ = $; });
+      let _, $ = new Promise$1($ => { _ = $; });
       defined.set(name, {$, _});
     }
     return defined.get(name).$;
@@ -240,15 +291,11 @@
   });
 
   if (attachShadow)
-    defineProperty(Element.prototype, 'attachShadow', {
-      configurable: true,
-      value() {
-        const root = attachShadow.apply(this, arguments);
-        const {parse} = qsaObserver({query, root, handle});
-        shadowRoots.set(this, {root, parse});
-        return root;
-      }
-    });
+    Element.prototype.attachShadow = function (init) {
+      const root = attachShadow.call(this, init);
+      shadowRoots.set(this, root);
+      return root;
+    };
 
   defineProperty(customElements, 'get', {
     configurable: true,
@@ -291,7 +338,7 @@
   });
 
   function parseShadow(element) {
-    const {parse, root} = shadowRoots.get(element);
+    const root = shadowRoots.get(element);
     parse(root.querySelectorAll(this), element.isConnected);
   }
 

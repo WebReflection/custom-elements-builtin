@@ -16,7 +16,7 @@ const {construct} = Reflect || {construct(HTMLElement) {
   return HTMLElement.call(this);
 }};
 
-const {defineProperty, keys, getOwnPropertyNames, setPrototypeOf} = Object;
+const {defineProperty, getOwnPropertyNames, setPrototypeOf} = Object;
 
 const shadowRoots = new WeakMap;
 const shadows = new Set;
@@ -120,15 +120,11 @@ defineProperty(document, 'createElement', {
 });
 
 if (attachShadow)
-  defineProperty(Element.prototype, 'attachShadow', {
-    configurable: true,
-    value() {
-      const root = attachShadow.apply(this, arguments);
-      const {parse} = qsaObserver({query, root, handle});
-      shadowRoots.set(this, {root, parse});
-      return root;
-    }
-  });
+  Element.prototype.attachShadow = function (init) {
+    const root = attachShadow.call(this, init);
+    shadowRoots.set(this, root);
+    return root;
+  };
 
 defineProperty(customElements, 'get', {
   configurable: true,
@@ -171,6 +167,6 @@ defineProperty(customElements, 'define', {
 });
 
 function parseShadow(element) {
-  const {parse, root} = shadowRoots.get(element);
+  const root = shadowRoots.get(element);
   parse(root.querySelectorAll(this), element.isConnected);
 }

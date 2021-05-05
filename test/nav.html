@@ -3,11 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="../index.js"></script>>
+  <script>
+  if (!self.chrome && !self.netscape) {
+    console.log('Safari 🎉');
+    document.write('<script src="../index.js"><\x2fscript>');
+  }
+  </script>
   <script>
   customElements.define('my-button', class extends HTMLButtonElement {
     connectedCallback () {
-      this.innerHTML = 'CONNECTED';
+      requestAnimationFrame(() => {
+        this.innerHTML = 'CONNECTED';
+      });
     }
   }, {extends: 'button'});
 

@@ -5,8 +5,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>custom-elements-builtin</title>
   <script>
-  try{customElements.define('built-in',document.createElement('p').constructor,{'extends':'p'})}
-  catch(s){console.log('Safari 🎉');document.write('<script src="../index.js"><\x2fscript>')}
+  if (!self.chrome && !self.netscape) {
+    console.log('Safari 🎉');
+    document.write('<script src="../index.js"><\x2fscript>');
+  }
   </script>
   <script>
   customElements.define('shadow-ed', class extends HTMLElement {
