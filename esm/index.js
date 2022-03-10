@@ -75,7 +75,7 @@ const augment = attributesObserver(whenDefined, MutationObserver);
 let override = null;
 
 getOwnPropertyNames(self)
-  .filter(k => /^HTML/.test(k))
+  .filter(k => /^HTML.*Element$/.test(k))
   .forEach(k => {
     const HTMLElement = self[k];
     function HTMLBuiltIn() {
