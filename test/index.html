@@ -7,7 +7,7 @@
   <script>
   if (!self.chrome && !self.netscape) {
     console.log('Safari 🎉');
-    document.write('<script src="../index.js"><\x2fscript>');
+    document.write('<script src="../index.js?_=' + Math.random() + '"><\x2fscript>');
   }
   </script>
   <script>
@@ -84,7 +84,28 @@
     element = document.createElement(tag, {is: 'not-really-p'});
     console.assert(tag === element.localName, 'the p should not be not-really-p');
     console.assert(element.outerHTML.toLowerCase() === '<p is="not-really-p"></p>', 'the p has not the right attribute');
+
+    document.body.appendChild(testUpgrade);
+    setTimeout(() => {
+      console.assert(testUpgradeConnected === 1, 'customElements.upgrade(element) connected');
+    });
   };
+
+  class TestUpgrade extends HTMLImageElement {
+    connectedCallback() {
+      testUpgradeConnected++;
+    }
+  }
+
+  let testUpgradeConnected = 0;
+  const testUpgrade = document.createElement('img', {is: 'test-img'});
+  console.assert(!(testUpgrade instanceof TestUpgrade), 'before define');
+
+  customElements.define('test-img', TestUpgrade, {extends: 'img'});
+  console.assert(!(testUpgrade instanceof TestUpgrade), 'after define');
+
+  customElements.upgrade(testUpgrade);
+  console.assert(testUpgrade instanceof TestUpgrade, 'after ugprade');
   </script>
 </head>
 <body>
