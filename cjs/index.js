@@ -9,7 +9,6 @@ const {
   Map, Set, WeakMap, Reflect
 } = self;
 
-const {attachShadow} = Element.prototype;
 const {createElement} = document;
 const {define, get, upgrade} = customElements;
 const {construct} = Reflect || {construct(HTMLElement) {
@@ -62,6 +61,16 @@ const {parse: parseShadowed} = qsaObserver({
     }
   }
 });
+
+// qsaObserver also patches attachShadow
+// be sure this runs *after* that
+const {attachShadow} = Element.prototype;
+if (attachShadow)
+  Element.prototype.attachShadow = function (init) {
+    const root = attachShadow.call(this, init);
+    shadowRoots.set(this, root);
+    return root;
+  };
 
 const whenDefined = name => {
   if (!defined.has(name)) {
@@ -118,13 +127,6 @@ defineProperty(document, 'createElement', {
     return element;
   }
 });
-
-if (attachShadow)
-  Element.prototype.attachShadow = function (init) {
-    const root = attachShadow.call(this, init);
-    shadowRoots.set(this, root);
-    return root;
-  };
 
 defineProperty(customElements, 'get', {
   configurable: true,

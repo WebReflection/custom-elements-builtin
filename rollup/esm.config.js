@@ -1,15 +1,14 @@
 import {nodeResolve} from '@rollup/plugin-node-resolve';
+import {terser} from 'rollup-plugin-terser';
 
 export default {
   input: './esm/index.js',
   plugins: [
-    nodeResolve()
+    nodeResolve(),
+    terser()
   ],
   output: {
-    esModule: false,
-    exports: 'named',
-    file: './index.js',
-    format: 'iife',
-    name: 'customElementsBuiltin'
+    file: './esm.js',
+    format: 'module'
   }
 };

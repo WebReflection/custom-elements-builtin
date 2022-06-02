@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script type="module">
+await (self.chrome || self.netscape || import("../esm.js"));
+
+customElements.define(
+  "web-link",
+  class extends HTMLAnchorElement {
+    constructor() {
+      super();
+      this.style.color = "red";
+    }
+  },
+  {
+    extends: "a"
+  }
+);
+
+customElements.define(
+  "web-widget",
+  class extends HTMLElement {
+    constructor() {
+      super();
+      this.attachShadow({ mode: "open" }).innerHTML = '<a is="web-link" href="/">hello 2</a>';
+      setTimeout(() => {
+        this.shadowRoot.innerHTML = '<a is="web-link" href="/">hello 3</a>';
+      }, 1000);
+    }
+  }
+);
+
+document.body.appendChild(document.createElement("web-widget"));
+    </script>
+</head>
+<body>
+
+</body>
+</html>
