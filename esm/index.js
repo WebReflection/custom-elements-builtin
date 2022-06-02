@@ -186,4 +186,4 @@ if (attachShadow)
     const root = attachShadow.call(this, init);
     shadowRoots.set(this, root);
     return root;
-  };
+  }
