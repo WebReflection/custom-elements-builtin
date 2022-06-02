@@ -9,7 +9,6 @@ const {
   Map, Set, WeakMap, Reflect
 } = self;
 
-const {attachShadow} = Element.prototype;
 const {createElement} = document;
 const {define, get, upgrade} = customElements;
 const {construct} = Reflect || {construct(HTMLElement) {
@@ -119,13 +118,6 @@ defineProperty(document, 'createElement', {
   }
 });
 
-if (attachShadow)
-  Element.prototype.attachShadow = function (init) {
-    const root = attachShadow.call(this, init);
-    shadowRoots.set(this, root);
-    return root;
-  };
-
 defineProperty(customElements, 'get', {
   configurable: true,
   value: getCE
@@ -188,3 +180,11 @@ function parseShadow(element) {
   const root = shadowRoots.get(element);
   parse(root.querySelectorAll(this), element.isConnected);
 }
+
+const {attachShadow} = Element.prototype;
+if (attachShadow)
+  Element.prototype.attachShadow = function (init) {
+    const root = attachShadow.call(this, init);
+    shadowRoots.set(this, root);
+    return root;
+  };
