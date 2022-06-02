@@ -296,7 +296,7 @@
       shadowRoots.set(this, root);
       return root;
     };
-    
+
   defineProperty(customElements, 'get', {
     configurable: true,
     value: getCE
