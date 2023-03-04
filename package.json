@@ -1,6 +1,6 @@
 {
   "name": "@webreflection/custom-elements-builtin",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A better custom-elements-builtin polyfill, Safari only",
   "main": "./cjs/index.js",
   "scripts": {
