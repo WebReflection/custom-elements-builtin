@@ -34,7 +34,7 @@
   "unpkg": "esm.js",
   "dependencies": {
     "@webreflection/custom-elements-attributes": "^0.1.4",
-    "@webreflection/custom-elements-upgrade": "^0.1.3",
+    "@webreflection/custom-elements-upgrade": "^0.1.4",
     "qsa-observer": "^3.0.2"
   },
   "repository": {

@@ -40,14 +40,20 @@
   const expando = element => {
     const key = keys(element);
     const value = [];
+    const ignore = new Set;
     const {length} = key;
     for (let i = 0; i < length; i++) {
       value[i] = element[key[i]];
-      delete element[key[i]];
+      try {
+        delete element[key[i]];
+      }
+      catch (SafariTP) {
+        ignore.add(i);
+      }
     }
     return () => {
       for (let i = 0; i < length; i++)
-        element[key[i]] = value[i];
+        ignore.has(i) || (element[key[i]] = value[i]);
     };
   };
 
