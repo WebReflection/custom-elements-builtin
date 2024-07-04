@@ -6,13 +6,16 @@
 A better custom-elements-builtin polyfill, targeting Safari, but working in every other browser that has native _customElements_.
 
 
-## Update
+## Usage
 
-This module is included in [@ungap/custom-elements](https://github.com/ungap/custom-elements#readme) polyfill, use that to avoid dealing with `try` catches manually, it features detect everything for you.
+This module does not include feature detection, so **do not use this module directly, unless you:** 
+- are targeting Safari/WebKit browsers *only*,
+- filtered out non-Safari/Webkit browsers, or
+- feature detect properly, if the browser supports customized builtin-elements.
 
-**Do not use this module directly** unless you are targeting Safari/WebKit browsers *only*.
+It is **highly encouraged** to use [@ungap/custom-elements](https://github.com/ungap/custom-elements#readme), which includes this module and minute details for you.
 
-I am not maintaining how to feature detect in here, because it keeps changing, and the right polyfill that includes most updated feature detection is [this one](https://github.com/ungap/custom-elements#readme), not this module.
+For more information, you can check out the [examples](#examples-for-how-to-do-feature-detection-for-this-polyfill)
 
 
 ## To Keep In Mind
@@ -37,3 +40,42 @@ document.body.appendChild(new BlueButton);
 ```
 
 This polyfill does that automatically because all builtin extends must be query-able via `querySelectorAll`, but other browsers won't do that automatically.
+
+
+## Examples for how to do feature detection for this polyfill
+
+Your first option would be, to extend and register an element, appending it do a DocumentFragment and then checking if it's both an instance of a Custom Element as well as a Builtin Element.
+
+```js
+// This returns false, if Customized Builtin-Elements are not supported
+function supportsCustomizedBuiltInElements() {
+  try {
+    class CustomButton extends HTMLButtonElement {}
+    customElements.define('test-button', CustomButton, { extends: 'button' });
+
+    const fragment = new DocumentFragment();
+    const testButton = document.createElement('button', { is: 'test-button' });
+    fragment.appendChild(testButton);
+
+    return testButton instanceof CustomButton && testButton instanceof HTMLButtonElement;
+  } catch (e) {
+    return false;
+  }
+}
+
+// Then use this to load 
+if (!supportsCustomizedBuiltInElements()) {
+  const script = document.createElement('script');
+  script.src = 'https://unpkg.com/@ungap/custom-elements';
+  document.head.appendChild(script);
+}
+```
+
+Another option would be, to add a script tag to your HTML checking for your browser, then adding a script tag to your document to load in the polyfill.
+```html
+<script>
+    self.chrome || 
+    self.netscape ||
+    document.write('<script src="//unpkg.com/@webreflection/custom-elements-builtin"><\/script>');
+</script>
+```
